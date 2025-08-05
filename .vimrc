@@ -14,6 +14,7 @@ let g:tokyonight_style = 'night'
 call plug#begin()
   Plug 'ghifarit53/tokyonight-vim'
   Plug 'bfrg/vim-c-cpp-modern'
+  Plug 'vim-airline/vim-airline'
 call plug#end()
 
 colorscheme tokyonight
