@@ -28,3 +28,15 @@ nnoremap <leader>ee :Lexplore<CR>
 nnoremap <leader>ec :Lexplore %:p:h<CR>
 
 nnoremap <leader>t :below terminal<CR>
+nnoremap <leader>b :call ChangeBuf()<CR>
+
+
+function! ChangeBuf()
+  let OpenedBuffers = getbufinfo()
+  let index = input("Enter the index of Buffer: ")
+  if index > 0 && index <= len(OpenedBuffers)
+    execute "buffer " . OpenedBuffers[index - 1].bufnr
+  else
+    echoerr "Invalid Index"
+  endif
+endfunction
