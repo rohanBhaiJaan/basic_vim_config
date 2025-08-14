@@ -10,8 +10,9 @@ set path+=*
 
 let mapleader = ' '
 let g:netrw_keepdir = 0
-let g:netrw_winsize = 30
+let g:netrw_winsize = 35
 let g:tokyonight_style = 'night'
+let g:netrw_liststyle = 3
 
 call plug#begin()
   Plug 'ghifarit53/tokyonight-vim'
