@@ -33,7 +33,8 @@ nnoremap <leader>b :call ChangeBuf()<CR>
 
 function! ChangeBuf()
   let OpenedBuffers = getbufinfo()
-  let index = input("Enter the index of Buffer: ")
+  echo "Enter the index of Buffer: "
+  let index = str2nr(nr2char(getchar()))
   if index > 0 && index <= len(OpenedBuffers)
     execute "buffer " . OpenedBuffers[index - 1].bufnr
   else
