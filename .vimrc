@@ -27,8 +27,19 @@ nnoremap <leader>s :split
 nnoremap <leader>ee :Lexplore<CR>
 nnoremap <leader>ec :Lexplore %:p:h<CR>
 
-nnoremap <leader>t :below terminal<CR>
-nnoremap <leader>b :call ChangeBuf()<CR>
+"TERMINAL KEYMAPS 
+nnoremap <leader>tt :tab terminal<CR>
+nnoremap <leader>tn :tabnext<CR>
+nnoremap <leader>tb :tabpreviou<CR>
+nnoremap <leader>b :ChangeBuf<CR>
+nnoremap <leader>x :so%<CR>
+
+command! ShowBuf :call ShowBuf()
+command! ChangeBuf :call ChangeBuf()
+
+"WINDOW KEY REMAPS
+nnoremap + <C-w>+
+nnoremap - <C-w>-
 
 function! ChangeBuf()
   let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
@@ -39,4 +50,12 @@ function! ChangeBuf()
   else
     echoerr 'Invalid Index'
   endif
+endfunction
+
+function! ShowBuf()
+  let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
+  for i in range(len(bufs))
+    let str = (i+1) . ". " . fnamemodify(bufs[i].name, ":t")
+    echo str
+  endfor
 endfunction
