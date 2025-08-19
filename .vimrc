@@ -4,6 +4,7 @@ set number relativenumber
 set expandtab tabstop=2 shiftwidth=2
 set autoindent smartindent
 set noswapfile
+set nowrap
 set termguicolors
 set hidden
 set path+=*
@@ -42,9 +43,9 @@ nnoremap - <C-w>-
 command! ShowBuf :call ShowBuf()
 command! ChangeBuf :call ChangeBuf()
 
-augroup TrackNetrw
+augroup NETRW
   autocmd!
-  autocmd FileType netrw if g:ExploreBufNo == -1 | let g:ExploreBufNo = bufnr("%") | endif
+  autocmd VimEnter * if isdirectory(argv(0)) | let g:ExploreBufNo = bufnr(argv(0)) | endif
 augroup END
 
 let g:prevBufNo = -1
@@ -70,16 +71,17 @@ function! ShowBuf()
 endfunction
 
 function! ToggleNetrw()
-  if &filetype ==# "netrw" || &buftype ==# "nofile"
+  if &filetype ==# "netrw"
     if g:prevBufNo != -1 && buflisted(g:prevBufNo)
-      execute 'buffer '. g:prevBufNo
+      let g:ExploreBufNo = bufnr("%")
+      execute 'buffer ' . g:prevBufNo
     endif
   else
-    let g:prevBufNo = bufnr("%")
-    if g:ExploreBufNo != -1 && bufexists(g:ExploreBufNo)
-      execute 'buffer '. g:ExploreBufNo
-    else
-      Explore
+    let g:prevBufNo = bufnr(expand("%"))
+    if g:ExploreBufNo == -1 || !bufexists(g:ExploreBufNo)
+      execute 'Explore'
+    elseif bufexists(g:ExploreBufNo)
+      execute 'buffer ' . g:ExploreBufNo
     endif
   endif
 endfunction
