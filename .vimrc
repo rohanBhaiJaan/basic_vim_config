@@ -8,6 +8,7 @@ set nowrap
 set termguicolors
 set hidden
 set path+=*
+set tags=./tags;/
 
 let mapleader = ' '
 let g:netrw_keepdir = 0
@@ -24,6 +25,7 @@ call plug#begin()
 call plug#end()
 
 colorscheme tokyonight
+highlight Comment cterm=NONE
 
 nnoremap <leader>s :split
 nnoremap <leader>e :call ToggleNetrw()<CR>
@@ -42,6 +44,17 @@ nnoremap - <C-w>-
 
 command! ShowBuf :call ShowBuf()
 command! ChangeBuf :call ChangeBuf()
+command! Tags :call system("ctags -R .")
+
+"C++ TAGS KEY MAPS
+augroup CTAGS_KEYBINDINGS
+  autocmd!
+  autocmd FileType cpp nnoremap <buffer> <leader>fl :call FindCppFunction()<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fo :copen<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fc :cclose<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fn :cnext<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fp :cprevious<CR>
+augroup END
 
 augroup NETRW
   autocmd!
@@ -84,4 +97,9 @@ function! ToggleNetrw()
       execute 'buffer ' . g:ExploreBufNo
     endif
   endif
+endfunction
+
+function! FindCppFunction()
+  let l:cppFunction = expand("<cword>")
+  execute 'vimgrep /' . l:cppFunction . '/ **/*.cpp'
 endfunction
