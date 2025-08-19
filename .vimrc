@@ -4,9 +4,11 @@ set number relativenumber
 set expandtab tabstop=2 shiftwidth=2
 set autoindent smartindent
 set noswapfile
+set nowrap
 set termguicolors
 set hidden
 set path+=*
+set tags=./tags;/
 
 let mapleader = ' '
 let g:netrw_keepdir = 0
@@ -23,6 +25,7 @@ call plug#begin()
 call plug#end()
 
 colorscheme tokyonight
+highlight Comment cterm=NONE
 
 nnoremap <leader>s :split
 nnoremap <leader>e :call ToggleNetrw()<CR>
@@ -41,10 +44,21 @@ nnoremap - <C-w>-
 
 command! ShowBuf :call ShowBuf()
 command! ChangeBuf :call ChangeBuf()
+command! Tags :call system("ctags -R .")
 
-augroup TrackNetrw
+"C++ TAGS KEY MAPS
+augroup CTAGS_KEYBINDINGS
   autocmd!
-  autocmd FileType netrw if g:ExploreBufNo == -1 | let g:ExploreBufNo = bufnr("%") | endif
+  autocmd FileType cpp nnoremap <buffer> <leader>fl :call FindCppFunction()<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fo :copen<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fc :cclose<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fn :cnext<CR>
+  autocmd FileType cpp nnoremap <buffer> <leader>fp :cprevious<CR>
+augroup END
+
+augroup NETRW
+  autocmd!
+  autocmd VimEnter * if isdirectory(argv(0)) | let g:ExploreBufNo = bufnr(argv(0)) | endif
 augroup END
 
 let g:prevBufNo = -1
@@ -70,16 +84,22 @@ function! ShowBuf()
 endfunction
 
 function! ToggleNetrw()
-  if &filetype ==# "netrw" || &buftype ==# "nofile"
+  if &filetype ==# "netrw"
     if g:prevBufNo != -1 && buflisted(g:prevBufNo)
-      execute 'buffer '. g:prevBufNo
+      let g:ExploreBufNo = bufnr("%")
+      execute 'buffer ' . g:prevBufNo
     endif
   else
-    let g:prevBufNo = bufnr("%")
-    if g:ExploreBufNo != -1 && bufexists(g:ExploreBufNo)
-      execute 'buffer '. g:ExploreBufNo
-    else
-      Explore
+    let g:prevBufNo = bufnr(expand("%"))
+    if g:ExploreBufNo == -1 || !bufexists(g:ExploreBufNo)
+      execute 'Explore'
+    elseif bufexists(g:ExploreBufNo)
+      execute 'buffer ' . g:ExploreBufNo
     endif
   endif
+endfunction
+
+function! FindCppFunction()
+  let l:cppFunction = expand("<cword>")
+  execute 'vimgrep /' . l:cppFunction . '/ **/*.cpp'
 endfunction
