@@ -1,4 +1,7 @@
+let mapleader = ' '
 syntax on
+packloadall
+
 set nocompatible 
 set number relativenumber
 set expandtab tabstop=2 shiftwidth=2
@@ -10,19 +13,18 @@ set hidden
 set path+=*
 set tags=./tags;/
 
-let mapleader = ' '
 let g:netrw_keepdir = 0
 let g:netrw_winsize = 35
 let g:tokyonight_style = 'night'
 
-call plug#begin()
-  Plug 'ghifarit53/tokyonight-vim'
-  Plug 'bfrg/vim-c-cpp-modern'
-  Plug 'vim-airline/vim-airline'
-  Plug 'tpope/vim-surround'
-  Plug 'tpope/vim-commentary'
-  Plug 'vimwiki/vimwiki'
-call plug#end()
+" call plug#begin()
+"   Plug 'ghifarit53/tokyonight-vim'
+"   Plug 'bfrg/vim-c-cpp-modern'
+"   Plug 'vim-airline/vim-airline'
+"   Plug 'tpope/vim-surround'
+"   Plug 'tpope/vim-commentary'
+"   Plug 'vimwiki/vimwiki'
+" call plug#end()
 
 colorscheme tokyonight
 highlight Comment cterm=NONE
