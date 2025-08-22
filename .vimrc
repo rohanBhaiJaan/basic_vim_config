@@ -13,9 +13,11 @@ set hidden
 set path+=*
 set tags=./tags;/
 
-let g:netrw_keepdir = 0
 let g:netrw_winsize = 35
 let g:tokyonight_style = 'night'
+" let g:be_vimmer_enable = 1
+" let g:be_vimmer_insert_mode_deletion = 1
+" let g:be_vimmer_wait_time = 1000 
 
 " call plug#begin()
 "   Plug 'ghifarit53/tokyonight-vim'
@@ -27,10 +29,11 @@ let g:tokyonight_style = 'night'
 " call plug#end()
 
 colorscheme tokyonight
-highlight Comment cterm=NONE
 
 nnoremap <leader>s :split
-nnoremap <leader>e :call ToggleNetrw()<CR>
+xnoremap <silent> <leader>p :call GetVisualModeContent()<CR>
+
+nnoremap <leader>e :call utils#functions#ToggleNetrw()<CR>
 nnoremap <leader>E :Explore %:p:h<CR>
 
 "TERMINAL KEYMAPS 
@@ -44,64 +47,15 @@ nnoremap <leader>x :so%<CR>
 nnoremap + <C-w>+
 nnoremap - <C-w>-
 
-command! ShowBuf :call ShowBuf()
-command! ChangeBuf :call ChangeBuf()
+command! ShowBuf :call utils#functions#ShowBuf()
+command! ChangeBuf :call utils#functions#ChangeBuf()
 command! Tags :call system("ctags -R .")
-
-"C++ TAGS KEY MAPS
-augroup CTAGS_KEYBINDINGS
-  autocmd!
-  autocmd FileType cpp nnoremap <buffer> <leader>fl :call FindCppFunction()<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fo :copen<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fc :cclose<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fn :cnext<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fp :cprevious<CR>
-augroup END
 
 augroup NETRW
   autocmd!
   autocmd VimEnter * if isdirectory(argv(0)) | let g:ExploreBufNo = bufnr(argv(0)) | endif
 augroup END
 
-let g:prevBufNo = -1
-let g:ExploreBufNo = -1
+colorscheme mytheme
 
-function! ChangeBuf()
-  let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
-  echo "Enter the index of Buffer: "
-  let index = str2nr(nr2char(getchar()))
-  if index > 0 && index <= len(bufs)
-    execute 'buffer ' . bufs[index - 1].bufnr
-  else
-    echoerr 'Invalid Index'
-  endif
-endfunction
-
-function! ShowBuf()
-  let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
-  for i in range(len(bufs))
-    let str = (i+1) . ". " . fnamemodify(bufs[i].name, ":t")
-    echo str
-  endfor
-endfunction
-
-function! ToggleNetrw()
-  if &filetype ==# "netrw"
-    if g:prevBufNo != -1 && buflisted(g:prevBufNo)
-      let g:ExploreBufNo = bufnr("%")
-      execute 'buffer ' . g:prevBufNo
-    endif
-  else
-    let g:prevBufNo = bufnr(expand("%"))
-    if g:ExploreBufNo == -1 || !bufexists(g:ExploreBufNo)
-      execute 'Explore'
-    elseif bufexists(g:ExploreBufNo)
-      execute 'buffer ' . g:ExploreBufNo
-    endif
-  endif
-endfunction
-
-function! FindCppFunction()
-  let l:cppFunction = expand("<cword>")
-  execute 'vimgrep /' . l:cppFunction . '/ **/*.cpp'
-endfunction
+let &runtimepath = &runtimepath . ',' . $HOME . '/projects/vim_practice.vim/'
