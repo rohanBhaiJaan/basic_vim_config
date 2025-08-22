@@ -30,16 +30,12 @@ let g:tokyonight_style = 'night'
 
 colorscheme tokyonight
 
-nnoremap <leader>s :split
+nnoremap <leader>ff :find
 xnoremap <silent> <leader>p :call GetVisualModeContent()<CR>
 
 nnoremap <leader>e :call utils#functions#ToggleNetrw()<CR>
 nnoremap <leader>E :Explore %:p:h<CR>
 
-"TERMINAL KEYMAPS 
-nnoremap <leader>tt :tab terminal<CR>
-nnoremap <leader>tn :tabnext<CR>
-nnoremap <leader>tb :tabpreviou<CR>
 nnoremap <leader>b :ChangeBuf<CR>
 nnoremap <leader>x :so%<CR>
 
