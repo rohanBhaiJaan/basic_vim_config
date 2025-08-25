@@ -39,14 +39,15 @@ xnoremap <silent> <leader>p :call GetVisualModeContent()<CR>
 nnoremap <leader>e :call utils#functions#ToggleNetrw()<CR>
 nnoremap <leader>E :Explore %:p:h<CR>
 
-nnoremap <leader>b :ChangeBuf<CR>
+nnoremap <leader>bc :ChangeBuf<CR>
+nnoremap <leader>b :ShowChangeBuf<CR>
 nnoremap <leader>x :so%<CR>
 
 "WINDOW KEY REMAPS
 nnoremap + <C-w>+
 nnoremap - <C-w>-
 
-command! ShowBuf :call utils#functions#ShowBuf()
+command! ShowChangeBuf :call utils#functions#ShowChangeBuf()
 command! ChangeBuf :call utils#functions#ChangeBuf()
 command! Tags :call system("ctags -R .")
 

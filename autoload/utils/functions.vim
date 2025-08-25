@@ -1,23 +1,47 @@
 let g:prevBufNo = -1
 let g:ExploreBufNo = -1
 
+let s:bufs = []
+let s:index = 0
+
 function! utils#functions#ChangeBuf()
-  let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
+  let s:bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
   echo "Enter the index of Buffer: "
-  let index = str2nr(nr2char(getchar()))
-  if index > 0 && index <= len(bufs)
-    execute 'buffer ' . bufs[index - 1].bufnr
+  let s:index = str2nr(nr2char(getchar()))
+  if s:index > 0 && s:index <= len(s:bufs)
+    execute 'buffer ' . s:bufs[s:index - 1].bufnr
   else
     echoerr 'Invalid Index'
   endif
 endfunction
 
-function! utils#functions#ShowBuf()
-  let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
-  for i in range(len(bufs))
-    let str = (i+1) . ". " . fnamemodify(bufs[i].name, ":t")
-    echo str
+function! s:close(id, key)
+  let s:index = str2nr((a:key))
+  call popup_close(a:id, 1)
+  if s:index > 0 && s:index <= len(s:bufs)
+    execute 'buffer ' . s:bufs[s:index - 1].bufnr
+    return 1
+  else
+    call popup_close(a:id, 1)
+    return 0
+  endif
+  return 0
+endfunction
+
+function! utils#functions#ShowChangeBuf()
+  let s:bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
+  let value = []
+  for i in range(len(s:bufs))
+    call add(value, (i+1) . ". " . s:bufs[i].name)
   endfor
+  call popup_create(value, #{
+        \minwidth: 20,
+        \minheight: 15,
+        \maxwidth: 60,
+        \close: 'click',
+        \filter: 's:close',
+        \padding: [ 1, 3, 1, 3 ],
+        \})
 endfunction
 
 function! utils#functions#ToggleNetrw()
