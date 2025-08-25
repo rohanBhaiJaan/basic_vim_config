@@ -1,17 +1,20 @@
+if has("syntax")
+  syntax on
+endif
+
 let mapleader = ' '
-syntax on
 packloadall
 
 set nocompatible 
 set number relativenumber
 set expandtab tabstop=2 shiftwidth=2
 set autoindent smartindent
-set noswapfile
-set nowrap
+set noswapfile nowrap
 set termguicolors
 set hidden
-set path+=*
-set tags=./tags;/
+set path+=* tags=./tags;/
+set encoding=utf-8 fileencoding=utf-8
+set scrolloff=12
 
 let g:netrw_winsize = 35
 let g:tokyonight_style = 'night'
@@ -30,7 +33,7 @@ let g:tokyonight_style = 'night'
 
 colorscheme tokyonight
 
-nnoremap <leader>ff :find
+nnoremap <leader>ff :find 
 xnoremap <silent> <leader>p :call GetVisualModeContent()<CR>
 
 nnoremap <leader>e :call utils#functions#ToggleNetrw()<CR>
@@ -54,4 +57,4 @@ augroup END
 
 colorscheme mytheme
 
-let &runtimepath = &runtimepath . ',' . $HOME . '/projects/vim_practice.vim/'
+" let &runtimepath = &runtimepath . ',' . $HOME . '/projects/vim_practice.vim/'
