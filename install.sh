@@ -7,10 +7,10 @@ fi
 vim_plugin_repos=(
   'https://github.com/ghifarit53/tokyonight-vim'
   'https://github.com/bfrg/vim-c-cpp-modern'
-  'https://github.com/vim-airline/vim-airline'
   'https://github.com/tpope/vim-surround'
   'https://github.com/tpope/vim-commentary'
   'https://github.com/vimwiki/vimwiki'
+  'https://github.com/junegunn/vader.vim.git'
 )
 
 for repo in "${vim_plugin_repos[@]}"; do

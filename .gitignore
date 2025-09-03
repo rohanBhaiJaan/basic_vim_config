@@ -2,4 +2,5 @@ plugged/
 pack/
 doc/tags
 .netrwhist
+\#.netrwhist#
 *.orig
