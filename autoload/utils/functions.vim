@@ -26,10 +26,9 @@ function! s:close(id, key)
   if s:index > 0 && s:index <= len(s:bufs)
     execute 'buffer ' . s:bufs[s:index - 1].bufnr
     return 1
-  else
+  endif
     echoerr "invalid index"
     return 0
-  endif
 endfunction
 
 function! utils#functions#ChangeBuf()
@@ -81,7 +80,7 @@ function! utils#functions#ToggleNetrw()
 endfunction
 
 function utils#functions#Timer(min) abort
-  let self = { "min": a:min, "timer_id": -1 }
+  let self = { "min": a:min, "timer_id": [] }
 
   function self.popup(tid) dict
     let win_id = popup_create("TIMER RAN OUT", #{
@@ -94,7 +93,25 @@ function utils#functions#Timer(min) abort
   endfunction
 
   function self.start() dict
-    let self["timer_id"] = timer_start(float2nr(self["min"]*60)*1000, { tid -> self.popup(tid) })
+    let time = float2nr(self["min"]*60)*1000
+    let ringing_time =  strftime("%H:%M", localtime() + (time/1000))
+    let id = timer_start(time, { tid -> self.popup(tid) })
+    call add(self["timer_id"], {"id":  id, "end_time": ringing_time })
+  endfunction
+
+  function self.show() dict
+    let win_id = popup_create("", #{
+          \title: "Timer-[show]",
+          \padding: [ 1, 2, 1, 2 ],
+          \border: [],
+          \close: "click",
+          \})
+    let buf_id = winbufnr(win_id)
+
+    for no in range(len(self["timer_id"]))
+      let text = self["timer_id"][no]["id"] .. "  |  " .. self["timer_id"][no]["end_time"]
+      call setbufline(buf_id, no+1, text )
+    endfor
   endfunction
 
   return self
