@@ -5,7 +5,7 @@ nnoremap <leader>e :call utils#functions#ToggleNetrw()<CR>
 nnoremap <leader>E :Explore %:p:h<CR>
 nnoremap <leader>u :UndotreeToggle<CR>
 
-nnoremap <leader>b :call utils#functions#ChangeBuf()<CR>
+nnoremap <leader>b :call buffer.change()<CR>
 nnoremap <leader>ts :call timer.start()<CR>
 
 nnoremap <leader>x :so%<CR>

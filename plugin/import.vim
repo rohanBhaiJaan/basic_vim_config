@@ -1,1 +1,2 @@
-let timer = utils#functions#Timer(100)
+let buffer = utils#functions#Buffer()
+let timer = utils#functions#Timer()
