@@ -11,6 +11,8 @@ vim_plugin_repos=(
   'https://github.com/tpope/vim-commentary'
   'https://github.com/vimwiki/vimwiki'
   'https://github.com/junegunn/vader.vim.git'
+  'https://github.com/mbbill/undotree'
+  'https://github.com/sainnhe/gruvbox-material'
 )
 
 for repo in "${vim_plugin_repos[@]}"; do

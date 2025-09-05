@@ -3,7 +3,7 @@ if has("syntax")
 endif
 
 let mapleader = ' '
-packloadall
+packadd be-vimmer
 
 set nocompatible 
 set number relativenumber
@@ -15,15 +15,18 @@ set hidden
 set path+=* tags=./tags;/
 set encoding=utf-8 fileencoding=utf-8
 set scrolloff=12
+set background=dark
 
 let g:netrw_winsize = 35
 let g:tokyonight_style = 'night'
+let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_foreground = 'mix'
 
-" let g:be_vimmer_enable = 1
-" let g:be_vimmer_insert_mode_deletion = 1
-" let g:be_vimmer_wait_time = 1000 
+colorscheme gruvbox-material
 
-colorscheme gruvbox
+if exists("g:be_vimmer")
+  call be_vimmer#Setup(1, 1000)
+endif
 
 command! ShowChangeBuf :call utils#functions#ShowChangeBuf()
 command! ChangeBuf :call utils#functions#ChangeBuf()
@@ -42,3 +45,4 @@ augroup END
 colorscheme mytheme
 
 " let &runtimepath = &runtimepath . ',' . $HOME . '/projects/core_plugins/vim_practice.vim/'
+" let &runtimepath = &runtimepath . ',' . $HOME . '/projects/showlongline'

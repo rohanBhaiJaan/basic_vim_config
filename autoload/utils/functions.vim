@@ -1,10 +1,8 @@
-let g:prevBufNo = -1
-let g:ExploreBufNo = -1
-
+let s:buffer = ""
 let s:bufs = []
 let s:index = 0
 
-hi MyError ctermfg=215 ctermbg=196
+hi MyError ctermfg=215 ctermbg=196 guifg=white guibg=red
 
 function utils#functions#Utils() abort
   let self = {}
@@ -16,9 +14,36 @@ function utils#functions#Utils() abort
           \minheight: 15,
           \maxwidth: 60,
           \close: 'click',
+          \mapping: 0,
           \padding: [ 1, 3, 1, 3 ],
           \})
 
+  endfunction
+
+  function! self.editablePopup(id, key, dict, dkey) abort
+    let start_time = reltime()
+    if a:key ==# "\<BS>" || char2nr(a:key) == 8
+      let a:dict[a:dkey] = a:dict[a:dkey][:-2]
+      let a:dict[a:dkey] = len(a:dict[a:dkey]) > 0 ? a:dict[a:dkey] : " "
+      call popup_settext((a:id), a:dict[a:dkey] . ' ')
+    elseif char2nr(a:key) == 23
+      let array_str = split(a:dict[a:dkey], ' ')[:-2]
+      let a:dict[a:dkey] = join(array_str, ' ')
+      call popup_settext((a:id), a:dict[a:dkey] . ' ')
+      return 1
+    elseif len(a:key) == 3
+      return 1
+    elseif char2nr(a:key) == 13
+      if ! len(a:dict[a:dkey]) > 1
+        call popup_close(a:id)
+      endif
+    elseif char2nr(a:key) > 31
+      if len(a:dict[a:dkey]) < 15
+        let a:dict[a:dkey] = a:dict[a:dkey] . a:key
+        call popup_settext((a:id), a:dict[a:dkey] . ' ')
+      endif
+    endif
+    return 1
   endfunction
 
   function! self.GetCharTimeLimit(time_limit) dict
@@ -43,7 +68,7 @@ let s:utils = utils#functions#Utils()
 function! utils#functions#Buffer() abort
   let self = {}
 
-  function! self.change()
+  function! self.change() dict
     let s:bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
     echo "Enter the index of Buffer: "
     let l:rawIndex = s:utils.GetCharTimeLimit(2000)
@@ -59,7 +84,7 @@ function! utils#functions#Buffer() abort
     endif
   endfunction
 
-  function! self.chooseUI()
+  function! self.chooseUI() dict
     let s:bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
     let value = []
     for i in range(len(s:bufs))
@@ -71,7 +96,7 @@ function! utils#functions#Buffer() abort
           \})
   endfunction
 
-  function! self.close(id, key)
+  function! self.close(id, key) dict
     let s:index = str2nr((a:key))
     call popup_close(a:id, 1)
     if s:index > 0 && s:index <= len(s:bufs)
@@ -101,32 +126,46 @@ function! utils#functions#ToggleNetrw()
   endif
 endfunction
 
-function utils#functions#Timer() abort
-  let self = { "timer_id": [] }
+function utils#functions#Reason() abort
+  " day: { time, spend } retrive from session_vim.txt [ day | time | spend ]
+  let self = { "session": [], "startup": -1, "spendtime": -1, "reason": ""  }
 
-  function self.popup(tid) dict
-    let win_id = s:utils.defaultPopup("timer", "TIMER RAN OUT")
-    call setwinvar(win_id, "&wincolor", 'MyError')
+  " callback function to save reason
+  function self.saveReason(id) dict
+    let self["reason"] = s:buffer
+    echo self
+  endfunction
+  "
+" startup && reason
+  function self.start_up() dict
+    let s:buffer = ""
+    let self["startup"] = reltime()
+    let prompt = s:utils.defaultPopup("Reason", "Why opened the vim?" )
+    call popup_setoptions(prompt, #{
+          \filter: { id, key -> s:utils.editablePopup(id, key) },
+          \callback: { id -> self.saveReason(id) }
+          \})
   endfunction
 
-  function self.start(min) dict
-    let time = float2nr(a:min*60)*1000
-    let ringing_time =  strftime("%H:%M", localtime() + (time/1000))
-    let id = timer_start(time, { tid -> self.popup(tid) })
-    call add(self["timer_id"], {"id":  id, "end_time": ringing_time })
+" spend time
+  function self.exit() dict
+    let self["spendtime"] = reltime(self["startup"])->reltimefloat()->float2nr()
+    call self.save_to_file()
+    echo self
+    execute 'abort'
   endfunction
 
-  function self.show() dict
-    let win_id = s:utils.defaultPopup("Timer:[show]", "")
-    let buf_id = winbufnr(win_id)
-
-    for no in range(len(self["timer_id"]))
-      let text = self["timer_id"][no]["id"] .. "  |  " .. self["timer_id"][no]["end_time"]
-      call setbufline(buf_id, no+1, text )
-    endfor
+" save them in a file
+  function self.save_to_file() dict
+    let format = strftime("%Y %b %d [%H:%M]", self["startup"])
+    call writefile([ format ], "session_vim.txt", "a")
   endfunction
 
-  return self
+" retrive them
+" totaltime
+" noOfSessions { no: number, duration: reltime(start)->reltimefloat() }
+
+  return self 
 endfunction
 
 function! utils#functions#FindCppFunction()
