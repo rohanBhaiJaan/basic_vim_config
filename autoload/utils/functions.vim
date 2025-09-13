@@ -5,7 +5,7 @@ let s:index = 0
 hi MyError ctermfg=215 ctermbg=196 guifg=white guibg=red
 
 function utils#functions#Utils() abort
-  let self = {}
+  let self = { "buffer": "" }
 
   function! self.defaultPopup(title, value) dict
     return popup_create(a:value, #{
@@ -20,29 +20,31 @@ function utils#functions#Utils() abort
 
   endfunction
 
-  function! self.editablePopup(id, key, dict, dkey) abort
+  function self.removeLast(item) dict
+      return a:item[:-2]
+  endfunction
+
+  function! self.editablePopup(id, key, dict, dkey, ) abort
     let start_time = reltime()
     if a:key ==# "\<BS>" || char2nr(a:key) == 8
-      let a:dict[a:dkey] = a:dict[a:dkey][:-2]
-      let a:dict[a:dkey] = len(a:dict[a:dkey]) > 0 ? a:dict[a:dkey] : " "
-      call popup_settext((a:id), a:dict[a:dkey] . ' ')
+      let self.buffer = self.removeLast(self.buffer)
+      call popup_settext((a:id), self.buffer . ' ')
     elseif char2nr(a:key) == 23
-      let array_str = split(a:dict[a:dkey], ' ')[:-2]
-      let a:dict[a:dkey] = join(array_str, ' ')
-      call popup_settext((a:id), a:dict[a:dkey] . ' ')
-      return 1
+      let self.buffer = self.removeLast(split(self.buffer, ' '))->join(" ")
+      echo self.buffer
+      call popup_settext((a:id), self.buffer . ' ')
     elseif len(a:key) == 3
       return 1
-    elseif char2nr(a:key) == 13
-      if ! len(a:dict[a:dkey]) > 1
-        call popup_close(a:id)
-      endif
+    elseif char2nr(a:key) == 13 && len(self.buffer) > 1
+      let self["buffer"] = ""
+      call popup_close(a:id)
     elseif char2nr(a:key) > 31
-      if len(a:dict[a:dkey]) < 15
-        let a:dict[a:dkey] = a:dict[a:dkey] . a:key
-        call popup_settext((a:id), a:dict[a:dkey] . ' ')
+      if len(self.buffer) < 15
+        let self.buffer = self.buffer . a:key
+        call popup_settext((a:id), self.buffer . ' ')
       endif
     endif
+    let a:dict[a:dkey] = self["buffer"]
     return 1
   endfunction
 

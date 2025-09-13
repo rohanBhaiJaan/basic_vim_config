@@ -18,6 +18,7 @@ set scrolloff=12
 set background=dark
 
 let g:netrw_winsize = 35
+let g:netrw_banner = 0
 let g:tokyonight_style = 'night'
 let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_foreground = 'mix'

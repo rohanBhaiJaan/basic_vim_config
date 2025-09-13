@@ -10,19 +10,32 @@ function utils#timer#App() abort
     return {"id":  timer_id, "end_time": ringing_time, "label": a:text }
   endfunction
 
-  function self.startup()
+  function self.getPrevTimers() dict
     let filecontent = readfile(expand("$HOME") .. "/.config/timer/timer.txt")
-
+    let timer_arr = []
     for line in filecontent
       let splitContent = split(line, '|')
-      let cur_time = localtime()
+      let cur_time = localtime() | let time = str2nr(splitContent[1]) - cur_time
       if (str2nr(splitContent[1]) > cur_time )
-        let time = str2nr(splitContent[1]) - cur_time
-        let timer_obj = self.getTimerObj(time, splitContent[0])
-        call add(self["timer_id"], timer_obj)
+        call add(timer_arr, [time, splitContent[0]])
       endif
     endfor
+    return timer_arr
+  endfunction
 
+  function self.start_new_timer(value) dict
+    let timer_obj = self.getTimerObj(a:value[0], a:value[1])
+    call add(self["timer_id"], timer_obj)
+    let text = self["buffer"] .. ' | ' .. (localtime() + (a:min*60))
+    call writefile([ text ], expand("$HOME") .. '/.config/timer/timer.txt', 'a')
+  endfunction
+
+  function self.startup()
+    let prev_timer = self.getPrevTimers()
+    for timer in prev_timer
+      let timer_obj = self.getTimerObj(timer[0], timer[1])
+      call add(self["timer_id"], timer_obj)
+    endfor
   endfunction
 
   function self.end_popup(tid) dict
@@ -32,6 +45,9 @@ function utils#timer#App() abort
   endfunction
 
   function self.save_timer(pid, min) dict
+    if trim(self.buffer)->len() == 0
+      return 
+    endif
     let timer_obj = self.getTimerObj(a:min*60, self["buffer"])
     call add(self["timer_id"], timer_obj)
     let text = self["buffer"] .. ' | ' .. (localtime() + (a:min*60))
@@ -43,11 +59,12 @@ function utils#timer#App() abort
     let label = s:utils.defaultPopup("Timer: Perpose of Timer?", self["buffer"])
     call popup_setoptions(label, #{
           \filter: {id, key -> s:utils.editablePopup(id, key, self, "buffer")},
-          \callback: {id, -> self.save_timer(id, a:min)},
+          \callback: {id, -> self.save_timer(id, a:min) },
           \border: [],
           \filetype: "editable_popup",
           \})
-    call win_execute(label, "setlocal syntax=editable_popup")
+    call win_execute(label, "setlocal filetype=editable_popup")
+    " call win_execute(label, "let syntax=editable_popup")
   endfunction
 
   function self.show() dict
