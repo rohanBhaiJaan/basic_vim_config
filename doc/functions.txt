@@ -1,0 +1,44 @@
+*myfunctions* my custom functions
+=============================================
+
+INTRODUCTION~
+Here are my function i wrote to use vim effectively
+for |netrw|, changing only file Buffers
+
+=============================================
+
+FUNCTIONS~
+*myfuncs*
+*utils#functions#ToggleNetrw()*  To toggle the Netrw Buffer
+
+=============================================
+
+Buffer Navigation~
+*Buffer*
+*buffer.change()*  To Switch To only Buffers who are files
+  show to no of active Buffer if waited for 2 sec
+
+usage:
+  let buffer = utils#functions#Buffer()
+  :call buffer.change()
+  nnoremap <silent> <leader>b :call buffer.change()<CR>
+
+=============================================
+
+Timer~
+*Timer*
+It's the basic utility addon for time management
+*timer.start* timer.start({int}) take the time in min
+*timer.show* timer.show() show no of timers are active and when there will ring
+
+usage:
+  let timer = utils#timer#App()
+  :call timer.start(20) " start a 20 min timer. after 20 min red popup will showup
+  :call timer.show()
+
+=============================================
+
+KEYMAPS~
+*myfunc_keymaps*
+<leader>e will Run the utils#functions#ToggleNetrw()
+<leader>b Will Run the utils#myfunctions#buffer().change()

@@ -1,105 +1,49 @@
-syntax on
+if has("syntax")
+  syntax on
+endif
+
+let mapleader = ' '
+packadd be-vimmer
+
 set nocompatible 
 set number relativenumber
 set expandtab tabstop=2 shiftwidth=2
 set autoindent smartindent
-set noswapfile
-set nowrap
+set noswapfile nowrap
 set termguicolors
 set hidden
-set path+=*
-set tags=./tags;/
+set path+=* tags=./tags;/
+set encoding=utf-8 fileencoding=utf-8
+set scrolloff=12
+set background=dark
 
-let mapleader = ' '
-let g:netrw_keepdir = 0
 let g:netrw_winsize = 35
+let g:netrw_banner = 0
 let g:tokyonight_style = 'night'
+let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_foreground = 'mix'
 
-call plug#begin()
-  Plug 'ghifarit53/tokyonight-vim'
-  Plug 'bfrg/vim-c-cpp-modern'
-  Plug 'vim-airline/vim-airline'
-  Plug 'tpope/vim-surround'
-  Plug 'tpope/vim-commentary'
-  Plug 'vimwiki/vimwiki'
-call plug#end()
+colorscheme gruvbox-material
 
-colorscheme tokyonight
-highlight Comment cterm=NONE
+if exists("g:be_vimmer")
+  call be_vimmer#Setup(1, 1000)
+endif
 
-nnoremap <leader>s :split
-nnoremap <leader>e :call ToggleNetrw()<CR>
-nnoremap <leader>E :Explore %:p:h<CR>
-
-"TERMINAL KEYMAPS 
-nnoremap <leader>tt :tab terminal<CR>
-nnoremap <leader>tn :tabnext<CR>
-nnoremap <leader>tb :tabpreviou<CR>
-nnoremap <leader>b :ChangeBuf<CR>
-nnoremap <leader>x :so%<CR>
-
-"WINDOW KEY REMAPS
-nnoremap + <C-w>+
-nnoremap - <C-w>-
-
-command! ShowBuf :call ShowBuf()
-command! ChangeBuf :call ChangeBuf()
-command! Tags :call system("ctags -R .")
-
-"C++ TAGS KEY MAPS
-augroup CTAGS_KEYBINDINGS
-  autocmd!
-  autocmd FileType cpp nnoremap <buffer> <leader>fl :call FindCppFunction()<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fo :copen<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fc :cclose<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fn :cnext<CR>
-  autocmd FileType cpp nnoremap <buffer> <leader>fp :cprevious<CR>
-augroup END
+command! ShowChangeBuf :call utils#functions#ShowChangeBuf()
+command! ChangeBuf :call utils#functions#ChangeBuf()
 
 augroup NETRW
   autocmd!
   autocmd VimEnter * if isdirectory(argv(0)) | let g:ExploreBufNo = bufnr(argv(0)) | endif
 augroup END
 
-let g:prevBufNo = -1
-let g:ExploreBufNo = -1
+augroup NUMBERS
+  autocmd!
+  autocmd FILETYPE netrw setlocal nu rnu
+  autocmd FILETYPE help setlocal nu rnu
+augroup END
 
-function! ChangeBuf()
-  let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
-  echo "Enter the index of Buffer: "
-  let index = str2nr(nr2char(getchar()))
-  if index > 0 && index <= len(bufs)
-    execute 'buffer ' . bufs[index - 1].bufnr
-  else
-    echoerr 'Invalid Index'
-  endif
-endfunction
+colorscheme mytheme
 
-function! ShowBuf()
-  let bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
-  for i in range(len(bufs))
-    let str = (i+1) . ". " . fnamemodify(bufs[i].name, ":t")
-    echo str
-  endfor
-endfunction
-
-function! ToggleNetrw()
-  if &filetype ==# "netrw"
-    if g:prevBufNo != -1 && buflisted(g:prevBufNo)
-      let g:ExploreBufNo = bufnr("%")
-      execute 'buffer ' . g:prevBufNo
-    endif
-  else
-    let g:prevBufNo = bufnr(expand("%"))
-    if g:ExploreBufNo == -1 || !bufexists(g:ExploreBufNo)
-      execute 'Explore'
-    elseif bufexists(g:ExploreBufNo)
-      execute 'buffer ' . g:ExploreBufNo
-    endif
-  endif
-endfunction
-
-function! FindCppFunction()
-  let l:cppFunction = expand("<cword>")
-  execute 'vimgrep /' . l:cppFunction . '/ **/*.cpp'
-endfunction
+let &runtimepath = &runtimepath . ',' . $HOME . '/projects/core_plugins/vim_practice.vim/'
+" let &runtimepath = &runtimepath . ',' . $HOME . '/projects/showlongline'
