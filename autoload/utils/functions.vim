@@ -31,13 +31,13 @@ function utils#functions#Utils() abort
       call popup_settext((a:id), self.buffer . ' ')
     elseif char2nr(a:key) == 23
       let self.buffer = self.removeLast(split(self.buffer, ' '))->join(" ")
-      echo self.buffer
       call popup_settext((a:id), self.buffer . ' ')
     elseif len(a:key) == 3
       return 1
     elseif char2nr(a:key) == 13 && len(self.buffer) > 1
       let self["buffer"] = ""
       call popup_close(a:id)
+      return 1
     elseif char2nr(a:key) > 31
       if len(self.buffer) < 15
         let self.buffer = self.buffer . a:key

@@ -1,8 +1,12 @@
 
+
+
+
 let s:utils = utils#functions#Utils()
+let s:heap = utils#dsa#Heap()
 
 function utils#timer#App() abort
-  let self = { "timer_id": [], "buffer": " " }
+  let self = { "timer_id": s:heap.arr, "buffer": " " }
 
   function self.getTimerObj(time, text) dict
     let ringing_time =  strftime("%H:%M", localtime() + (a:time))
@@ -25,7 +29,7 @@ function utils#timer#App() abort
 
   function self.start_new_timer(value) dict
     let timer_obj = self.getTimerObj(a:value[0], a:value[1])
-    call add(self["timer_id"], timer_obj)
+    call s:heap.add(timer_obj)
     let text = self["buffer"] .. ' | ' .. (localtime() + (a:min*60))
     call writefile([ text ], expand("$HOME") .. '/.config/timer/timer.txt', 'a')
   endfunction
@@ -34,7 +38,7 @@ function utils#timer#App() abort
     let prev_timer = self.getPrevTimers()
     for timer in prev_timer
       let timer_obj = self.getTimerObj(timer[0], timer[1])
-      call add(self["timer_id"], timer_obj)
+      call s:heap.add(timer_obj)
     endfor
   endfunction
 
@@ -44,12 +48,17 @@ function utils#timer#App() abort
     call self.delete(a:tid)
   endfunction
 
+  function self.first()
+    let value = s:heap.look()
+    return type(value) == v:t_string ? value : value.end_time
+  endfunction
+
   function self.save_timer(pid, min) dict
     if trim(self.buffer)->len() == 0
       return 
     endif
     let timer_obj = self.getTimerObj(a:min*60, self["buffer"])
-    call add(self["timer_id"], timer_obj)
+    call s:heap.add(timer_obj)
     let text = self["buffer"] .. ' | ' .. (localtime() + (a:min*60))
     call writefile([ text ], expand("$HOME") .. '/.config/timer/timer.txt', 'a')
   endfunction
@@ -81,13 +90,13 @@ function utils#timer#App() abort
     call timer_pause(a:timer_id)
   endfunction
 
-  function self.delete(timer_id)
-    call timer_stop(a:timer_id)
-    for index in range(len(self["timer_id"]))
-      if self["timer_id"][index]["id"] != a:timer_id | continue | endif
-      call remove(self["timer_id"], index)
-      break
-    endfor
+  function self.delete(timer_id = 0)
+    if a:timer_id != 0
+      echo "sorry not implemented yet"
+      return 
+    endif
+    let timer = s:heap.pop()
+    call timer_stop(timer["id"])
   endfunction
 
   return self

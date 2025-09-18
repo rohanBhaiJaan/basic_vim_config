@@ -2,6 +2,11 @@ if has("syntax")
   syntax on
 endif
 
+if v:version >= 901
+  packadd hlyank
+  packadd comment
+endif
+
 let mapleader = ' '
 packadd be-vimmer
 
@@ -17,8 +22,15 @@ set encoding=utf-8 fileencoding=utf-8
 set scrolloff=12
 set background=dark
 
+" STATUSLINE
+set statusline=%f
+set statusline+=\ %y
+set statusline+=%m
+
 let g:netrw_winsize = 35
 let g:netrw_banner = 0
+let g:hlyank_duration = 100
+
 let g:tokyonight_style = 'night'
 let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_foreground = 'mix'

@@ -1,7 +1,15 @@
 
 
 
-function Heap()
+
+" convert to min heap
+" modify heap data check
+
+
+function utils#dsa#Heap()
+  " return {"id":  timer_id
+  " end_time: ringing_time
+  " label: a:text }
   let self = { "arr": [], }
 
   function self.add(value) dict
@@ -18,11 +26,10 @@ function Heap()
   endfunction
 
   function self.bubble_up(index)
-    if a:index == 0 | return | endif
     let index = a:index
     while index > 0
       let parent = self.getParent(index)
-      if self.arr[parent] < self.arr[index]
+      if self.arr[parent].end_time > self.arr[index].end_time
         call self.swap(index, parent)
         let index = parent
       else
@@ -31,16 +38,23 @@ function Heap()
     endwhile
   endfunction
 
+  function self.look()
+    if len(self.arr) == 0
+      return ""
+    endif
+    return self.arr[0]
+  endfunction
+
   function self.bubble_down(index)
     let index = a:index
     let length = len(self.arr)
     while index < length
       let left = self.getLeft(index)
       let right = self.getRight(index)
-      if left < length && self.arr[index] < self.arr[left]
+      if left < length && self.arr[index].end_time > self.arr[left].end_time
         call self.swap(index, left)
         let index = left
-      elseif right < length && self.arr[index] < self.arr[right]
+      elseif right < length && self.arr[index].end_time > self.arr[right].end_time
         call self.swap(index, right)
         let index = right
       else
@@ -70,14 +84,14 @@ function Heap()
   return self
 endfunction
 
-let heap = Heap()
-call heap.add(34)
-call heap.add(3)
-echo heap.pop()
-call heap.add(31)
-call heap.add(43)
-call heap.add(27)
-echo heap.pop()
-call heap.add(37)
+" let heap = Heap()
+" call heap.add({"end_time": 34})
+" call heap.add({"end_time": 3})
+" " echo heap.pop()
+" call heap.add({"end_time": 31})
+" call heap.add({"end_time": 43})
+" call heap.add({"end_time": 27})
+" " echo heap.pop()
+" call heap.add({"end_time": 37})
 
-echo heap.arr
+" echo heap.arr

@@ -13,6 +13,7 @@ vim_plugin_repos=(
   'https://github.com/junegunn/vader.vim.git'
   'https://github.com/mbbill/undotree'
   'https://github.com/sainnhe/gruvbox-material'
+  'https://github.com/tpope/vim-fugitive'
 )
 
 for repo in "${vim_plugin_repos[@]}"; do
