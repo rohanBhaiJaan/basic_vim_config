@@ -5,5 +5,5 @@ let buffer = utils#functions#Buffer()
 let timer = utils#timer#App()
 
 call timer.startup()
-set statusline+=\ %{timer.first()}
+set statusline+=%=\ %{timer.first()}
 " let reason = utils#functions#Reason()

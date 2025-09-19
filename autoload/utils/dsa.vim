@@ -17,11 +17,11 @@ function utils#dsa#Heap()
     call self.bubble_up(len(self.arr)-1)
   endfunction
 
-  function self.pop()
-    let value = self.arr[0]
-    call self.swap(0, len(self.arr)-1)
-    let self.arr = self.arr[:-2]
-    call self.bubble_down(0)
+  function self.pop(index = 0)
+    let value = self.arr[a:index]
+    call self.swap(a:index, len(self.arr)-1)
+    call remove(self.arr, len(self.arr)-1)
+    call self.bubble_down(a:index)
     return value
   endfunction
 
