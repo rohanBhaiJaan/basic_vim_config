@@ -1,15 +1,12 @@
 
 
-" rewrite the whole timer file
-
 let s:utils = utils#functions#Utils()
 let s:heap = utils#dsa#Heap()
 
 function utils#timer#App() abort
-  let self = { "timer_id": s:heap.arr, "buffer": " " }
+  let self = { "timer_id": s:heap, "paused_timers": utils#dsa#Heap(), "buffer": " " }
 
   function self.getTimerObj(time, text) dict
-    let ringing_time =  strftime("%H:%M", localtime() + (a:time))
     let timer_id = timer_start(a:time*1000, { tid -> self.end_popup(tid) })
     return {"id":  timer_id, "end_time": localtime() + (a:time), "label": a:text }
   endfunction
@@ -50,7 +47,7 @@ function utils#timer#App() abort
 
   function self.first()
     let value = s:heap.look()
-    return type(value) == v:t_string ? value : strftime("%H:%M", value.end_time)
+    return type(value) == v:t_string ? value : strftime("%H:%M:%S", value.end_time)
   endfunction
 
   function self.save_timer(pid, min) dict
@@ -72,37 +69,47 @@ function utils#timer#App() abort
           \filetype: "editable_popup",
           \})
     call win_execute(label, "setlocal filetype=editable_popup")
-    " call win_execute(label, "let syntax=editable_popup")
   endfunction
 
-  function self.show() dict
+  function self.show(array = "timer_id") dict
+    if empty(self[a:array].arr) | return | endif
     let win_id = s:utils.defaultPopup("Timer:[show]", "")
     let buf_id = winbufnr(win_id)
 
-    for no in range(len(self["timer_id"]))
-      let text = self["timer_id"][no]["id"] .. "  |  " .. strftime("%H:%M", self["timer_id"][no]["end_time"])  .. "  |  " .. self["timer_id"][no]["label"]
-      call setbufline(buf_id, no+1, text )
+    let index = 0
+    for item in self[a:array].arr
+      let text = item["id"] .. "  |  " .. strftime("%H:%M", item["end_time"])  .. "  |  " .. item["label"]
+      let index += 1
+      call setbufline(buf_id, index, text )
     endfor
 
     return win_id
   endfunction
 
   function self.writefile()
-    call writefile([ "" ], expand("$HOME") .. '/.config/timer/timer.txt')
-    for i in range(len(self["timer_id"]))
-      let text = self["timer_id"][i].label .. ' | ' .. (self["timer_id"][i].end_time)
-      call writefile([ text ], expand("$HOME") .. '/.config/timer/timer.txt', 'a')
-    endfor
-  endfunction
-
-  function self.pause(timer_id)
-    call timer_pause(a:timer_id)
+    call writefile(
+          \ mapnew(self["timer_id"].arr, {_, var -> var.label .. ' | ' .. var.end_time}),
+          \ expand("$HOME/.config/timer/timer.txt"))
   endfunction
 
   function self.delete_timer(id, result)
     let timer = s:heap.pop(a:result-1)
     call timer_stop(timer["id"])
     call self.writefile()
+    return timer
+  endfunction
+
+  function self.pause_timer(id, result) dict
+    let timer = self.delete_timer(a:id, a:result)
+    let timer["end_time"] = timer["end_time"] - localtime()
+    echo "remaining: " .timer["end_time"]
+    call self["paused_timers"].add(timer)
+  endfunction
+
+  function self.resume_timer(id, result) dict
+    let paused_timer = self["paused_timers"].pop()
+    let timer = self.getTimerObj(paused_timer["end_time"], paused_timer["label"])
+    call self["timer_id"].add(timer)
   endfunction
 
   function self.delete()
@@ -112,6 +119,26 @@ function utils#timer#App() abort
           \cursorline: 1,
           \filter: "popup_filter_menu",
           \callback: { id, result -> self.delete_timer(id, result) }
+          \})
+  endfunction
+
+  function self.pause()
+    let win_id = self.show()
+    call popup_setoptions(win_id, #{
+          \title: "Timer [Pause]",
+          \cursorline: 1,
+          \filter: "popup_filter_menu",
+          \callback: { id, result -> self.pause_timer(id, result) }
+          \})
+  endfunction
+
+  function self.resume() dict
+    let win_id = self.show("paused_timers")
+    call popup_setoptions(win_id, #{
+          \title: "Timer [Paused Timers]",
+          \cursorline: 1,
+          \filter: "popup_filter_menu",
+          \callback: { id, result -> self.resume_timer(id, result) }
           \})
   endfunction
 

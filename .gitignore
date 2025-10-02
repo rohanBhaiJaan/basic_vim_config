@@ -3,4 +3,5 @@ pack/
 doc/tags
 .netrwhist
 \#.netrwhist#
+*.json
 *.orig

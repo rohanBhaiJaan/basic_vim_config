@@ -34,6 +34,8 @@ let g:hlyank_duration = 100
 let g:tokyonight_style = 'night'
 let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_foreground = 'mix'
+" let g:ignore_filetype = ["help"]
+" let g:be_vimmer_chances = 4
 
 colorscheme gruvbox-material
 

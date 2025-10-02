@@ -51,15 +51,16 @@ function utils#dsa#Heap()
     while index < length
       let left = self.getLeft(index)
       let right = self.getRight(index)
+      let swap_index = index
       if left < length && self.arr[index].end_time > self.arr[left].end_time
-        call self.swap(index, left)
-        let index = left
-      elseif right < length && self.arr[index].end_time > self.arr[right].end_time
-        call self.swap(index, right)
-        let index = right
-      else
-        break
+        let swap_index = left
       endif
+      if right < length && self.arr[swap_index].end_time > self.arr[right].end_time
+        let swap_index = right
+      endif
+      if index == swap_index | break | endif
+      call self.swap(index,swap_index)
+      let index = swap_index
     endwhile
   endfunction
 
