@@ -67,11 +67,25 @@ endfunction
 
 let s:utils = utils#functions#Utils()
 
+function! s:close(id, result, self)
+  execute 'buffer ' . a:self["buffers"][a:result-1].bufnr
+endfunction
+
+function! s:choose_buffer(id, key, self)
+  let s:index = str2nr((a:key))
+  if s:index > 0 && s:index <= len(a:self["buffers"])
+    call popup_close(a:id, s:index)
+  else
+    call popup_filter_menu(a:id, a:key)
+  endif
+  return 1
+endfunction
+
 function! utils#functions#Buffer() abort
-  let self = {}
+  let self = { "limit" : 5, "buffers": []}
 
   function! self.change() dict
-    let s:bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
+    let self["buffers"] = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
     echo "Enter the index of Buffer: "
     let l:rawIndex = s:utils.GetCharTimeLimit(2000)
     let s:index = str2nr(l:rawIndex)
@@ -79,34 +93,21 @@ function! utils#functions#Buffer() abort
       call self.chooseUI()
       return 
     endif
-    if s:index > 0 && s:index <= len(s:bufs) 
-      execute 'buffer ' . s:bufs[s:index - 1].bufnr 
+    if s:index > 0 && s:index <= len(self["buffers"]) 
+      execute 'buffer ' . self["buffers"][s:index - 1].bufnr 
     else
       echoerr "invalid index"
     endif
   endfunction
 
   function! self.chooseUI() dict
-    let s:bufs = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
-    let value = []
-    for i in range(len(s:bufs))
-      call add(value, (i+1) . ". " . s:bufs[i].name)
-    endfor
+    let value = mapnew(self["buffers"], {idx, val ->  idx+1 . '. '. val["name"]})
     let popup_id = s:utils.defaultPopup("buffer change", value)
     call popup_setoptions(popup_id, #{
-          \filter: { id, key -> self.close(id, key) }
+          \cursorline: v:true,
+          \filter: { id, key -> s:choose_buffer(id, key, self) },
+          \callback: { id, result -> s:close(id, result, self) }
           \})
-  endfunction
-
-  function! self.close(id, key) dict
-    let s:index = str2nr((a:key))
-    call popup_close(a:id, 1)
-    if s:index > 0 && s:index <= len(s:bufs)
-      execute 'buffer ' . s:bufs[s:index - 1].bufnr
-      return 1
-    endif
-    echoerr "invalid index"
-    return 0
   endfunction
 
   return self
@@ -138,7 +139,7 @@ function utils#functions#Reason() abort
     echo self
   endfunction
   "
-" startup && reason
+  " startup && reason
   function self.start_up() dict
     let s:buffer = ""
     let self["startup"] = reltime()
@@ -149,7 +150,7 @@ function utils#functions#Reason() abort
           \})
   endfunction
 
-" spend time
+  " spend time
   function self.exit() dict
     let self["spendtime"] = reltime(self["startup"])->reltimefloat()->float2nr()
     call self.save_to_file()
@@ -157,15 +158,15 @@ function utils#functions#Reason() abort
     execute 'abort'
   endfunction
 
-" save them in a file
+  " save them in a file
   function self.save_to_file() dict
     let format = strftime("%Y %b %d [%H:%M]", self["startup"])
     call writefile([ format ], "session_vim.txt", "a")
   endfunction
 
-" retrive them
-" totaltime
-" noOfSessions { no: number, duration: reltime(start)->reltimefloat() }
+  " retrive them
+  " totaltime
+  " noOfSessions { no: number, duration: reltime(start)->reltimefloat() }
 
   return self 
 endfunction
