@@ -65,54 +65,6 @@ function utils#functions#Utils() abort
   return self
 endfunction
 
-let s:utils = utils#functions#Utils()
-
-function! s:close(id, result, self)
-  execute 'buffer ' . a:self["buffers"][a:result-1].bufnr
-endfunction
-
-function! s:choose_buffer(id, key, self)
-  let s:index = str2nr((a:key))
-  if s:index > 0 && s:index <= len(a:self["buffers"])
-    call popup_close(a:id, s:index)
-  else
-    call popup_filter_menu(a:id, a:key)
-  endif
-  return 1
-endfunction
-
-function! utils#functions#Buffer() abort
-  let self = { "limit" : 5, "buffers": []}
-
-  function! self.change() dict
-    let self["buffers"] = filter(getbufinfo(), { _, val -> val.listed && !empty(val.name) && filereadable(val.name) })
-    echo "Enter the index of Buffer: "
-    let l:rawIndex = s:utils.GetCharTimeLimit(2000)
-    let s:index = str2nr(l:rawIndex)
-    if l:rawIndex == ""
-      call self.chooseUI()
-      return 
-    endif
-    if s:index > 0 && s:index <= len(self["buffers"]) 
-      execute 'buffer ' . self["buffers"][s:index - 1].bufnr 
-    else
-      echoerr "invalid index"
-    endif
-  endfunction
-
-  function! self.chooseUI() dict
-    let value = mapnew(self["buffers"], {idx, val ->  idx+1 . '. '. val["name"]})
-    let popup_id = s:utils.defaultPopup("buffer change", value)
-    call popup_setoptions(popup_id, #{
-          \cursorline: v:true,
-          \filter: { id, key -> s:choose_buffer(id, key, self) },
-          \callback: { id, result -> s:close(id, result, self) }
-          \})
-  endfunction
-
-  return self
-endfunction
-
 function! utils#functions#ToggleNetrw()
   if &filetype ==# "netrw"
     if g:prevBufNo != -1 && buflisted(g:prevBufNo)
@@ -127,48 +79,6 @@ function! utils#functions#ToggleNetrw()
       execute 'buffer ' . g:ExploreBufNo
     endif
   endif
-endfunction
-
-function utils#functions#Reason() abort
-  " day: { time, spend } retrive from session_vim.txt [ day | time | spend ]
-  let self = { "session": [], "startup": -1, "spendtime": -1, "reason": ""  }
-
-  " callback function to save reason
-  function self.saveReason(id) dict
-    let self["reason"] = s:buffer
-    echo self
-  endfunction
-  "
-  " startup && reason
-  function self.start_up() dict
-    let s:buffer = ""
-    let self["startup"] = reltime()
-    let prompt = s:utils.defaultPopup("Reason", "Why opened the vim?" )
-    call popup_setoptions(prompt, #{
-          \filter: { id, key -> s:utils.editablePopup(id, key) },
-          \callback: { id -> self.saveReason(id) }
-          \})
-  endfunction
-
-  " spend time
-  function self.exit() dict
-    let self["spendtime"] = reltime(self["startup"])->reltimefloat()->float2nr()
-    call self.save_to_file()
-    echo self
-    execute 'abort'
-  endfunction
-
-  " save them in a file
-  function self.save_to_file() dict
-    let format = strftime("%Y %b %d [%H:%M]", self["startup"])
-    call writefile([ format ], "session_vim.txt", "a")
-  endfunction
-
-  " retrive them
-  " totaltime
-  " noOfSessions { no: number, duration: reltime(start)->reltimefloat() }
-
-  return self 
 endfunction
 
 function! utils#functions#FindCppFunction()
