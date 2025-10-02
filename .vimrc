@@ -58,4 +58,4 @@ augroup END
 colorscheme mytheme
 
 let &runtimepath = &runtimepath . ',' . $HOME . '/projects/core_plugins/vim_practice.vim/'
-" let &runtimepath = &runtimepath . ',' . $HOME . '/projects/showlongline'
+let &runtimepath = &runtimepath . ',' . $HOME . '/projects/showlongline'
